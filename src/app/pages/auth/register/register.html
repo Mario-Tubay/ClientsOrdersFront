@@ -1,0 +1,123 @@
+<div class="space-y-5">
+
+  @if (errorMessage()) {
+    <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5 animate-fadeIn font-medium">
+      <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <form (submit)="$event.preventDefault(); onRegister()" class="space-y-3.5">
+    
+    <div class="grid grid-cols-2 gap-3">
+      <app-input
+        label="Nombre"
+        type="text"
+        placeholder="Ej: Juan"
+        icon="user"
+        [(value)]="firstName"
+      />
+
+      <app-input
+        label="Apellido"
+        type="text"
+        placeholder="Ej: Pérez"
+        [(value)]="lastName"
+      />
+    </div>
+
+    <app-input
+      label="Correo electrónico"
+      type="email"
+      placeholder="tu@correo.com"
+      icon="email"
+      [(value)]="email"
+    />
+
+    <app-input
+      label="Contraseña"
+      type="password"
+      placeholder="Crea una contraseña segura"
+      icon="lock"
+      [(value)]="password"
+    />
+
+    <!-- Indicador visual de seguridad de contraseña -->
+    @if (password().length > 0) {
+      <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5 text-xs transition-all">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Requisitos de seguridad:</div>
+        
+        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+          <!-- 1. Mínimo 8 caracteres -->
+          <div class="flex items-center gap-1.5" [class.text-emerald-600]="hasMinLength()" [class.text-slate-400]="!hasMinLength()">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              @if (hasMinLength()) {
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              } @else {
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              }
+            </svg>
+            <span>Mínimo 8 caracteres</span>
+          </div>
+
+          <!-- 2. Al menos una mayúscula -->
+          <div class="flex items-center gap-1.5" [class.text-emerald-600]="hasUppercase()" [class.text-slate-400]="!hasUppercase()">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              @if (hasUppercase()) {
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              } @else {
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              }
+            </svg>
+            <span>1 Mayúscula (A-Z)</span>
+          </div>
+
+          <!-- 3. Al menos un número -->
+          <div class="flex items-center gap-1.5" [class.text-emerald-600]="hasNumber()" [class.text-slate-400]="!hasNumber()">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              @if (hasNumber()) {
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              } @else {
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              }
+            </svg>
+            <span>1 Número (0-9)</span>
+          </div>
+
+          <!-- 4. Al menos un carácter especial -->
+          <div class="flex items-center gap-1.5" [class.text-emerald-600]="hasSpecialChar()" [class.text-slate-400]="!hasSpecialChar()">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              @if (hasSpecialChar()) {
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              } @else {
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              }
+            </svg>
+            <span>1 Símbolo (!@#$...)</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="pt-2">
+      <app-button
+        type="submit"
+        label="Registrarme"
+        variant="primary"
+        [loading]="loading()"
+      />
+    </div>
+
+  </form>
+
+  <!-- Switch a Login -->
+  <div class="pt-3 border-t border-slate-100 text-center text-xs text-slate-500">
+    ¿Ya tienes una cuenta?
+    <a routerLink="/login" class="text-[#0091CA] hover:text-[#007BB0] font-semibold ml-1 transition hover:underline">
+      Inicia sesión aquí
+    </a>
+  </div>
+
+</div>

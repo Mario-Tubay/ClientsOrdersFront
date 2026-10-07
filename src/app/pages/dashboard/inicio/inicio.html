@@ -1,0 +1,249 @@
+<div class="space-y-8 max-w-7xl mx-auto">
+  
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Resumen Ejecutivo</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Indicadores de rendimiento comercial y control de despachos</p>
+    </div>
+
+    <div class="flex items-center gap-2.5">
+      <a routerLink="/dashboard/cliente" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 shadow-xs transition-all duration-150">
+        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+        </svg>
+        <span>Gestionar Clientes</span>
+      </a>
+
+      <a routerLink="/dashboard/ordenes" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-[#0091CA] hover:bg-[#007BB0] rounded-xl shadow-xs transition-all duration-150">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        <span>Nueva Orden</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pedidos</span>
+        <div class="w-8 h-8 rounded-lg bg-[#0091CA]/10 text-[#0091CA] flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-black text-slate-900">{{ totalOrders() }}</div>
+        <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+          <span class="text-emerald-600 font-bold">+12%</span> vs mes anterior
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Completados</span>
+        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-black text-slate-900">{{ completedOrders() }}</div>
+        <div class="text-[11px] text-emerald-600 font-semibold mt-1">
+          {{ completionRate() }}% tasa de éxito
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Pendientes</span>
+        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-black text-slate-900">{{ pendingOrders() }}</div>
+        <div class="text-[11px] text-amber-600 font-medium mt-1">
+          Requieren seguimiento
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Clientes Activos</span>
+        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-black text-slate-900">{{ activeClients() }}</div>
+        <div class="text-[11px] text-slate-500 mt-1">
+          Empresas vinculadas
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">Volumen de Pedidos por Mes</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Evolución de operaciones procesadas en el último semestre</p>
+        </div>
+        <span class="px-2.5 py-1 text-[11px] font-semibold text-[#0091CA] bg-[#0091CA]/10 rounded-lg">
+          2026
+        </span>
+      </div>
+
+      <div class="h-60 flex items-end justify-between gap-3 pt-6 px-2">
+        @for (item of activityData(); track item.month) {
+          <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+            <span class="text-[11px] font-bold text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity">
+              {{ item.orders }}
+            </span>
+            <div class="w-full bg-slate-100 rounded-t-lg relative flex items-end overflow-hidden h-44">
+              <div 
+                class="w-full bg-[#0091CA] group-hover:bg-[#007BB0] rounded-t-lg transition-all duration-300"
+                [style.height.%]="item.percentage">
+              </div>
+            </div>
+            <span class="text-[11px] font-medium text-slate-500 mt-1">
+              {{ item.month }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-5">
+      <div class="border-b border-slate-100 pb-4">
+        <h2 class="text-sm font-bold text-slate-900">Distribución de Estados</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Proporción general de los despachos</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-700">
+            <span class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+              Completados
+            </span>
+            <span>{{ completedOrders() }} ({{ completionRate() }}%)</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="bg-emerald-500 h-full rounded-full" [style.width.%]="completionRate()"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-700">
+            <span class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+              Pendientes
+            </span>
+            <span>{{ pendingOrders() }} (22%)</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="bg-amber-500 h-full rounded-full" style="width: 22%"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-700">
+            <span class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+              Cancelados
+            </span>
+            <span>{{ cancelledOrders() }} (5%)</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="bg-rose-500 h-full rounded-full" style="width: 5%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500">
+        <div class="font-bold text-slate-700">Control Operativo</div>
+        <p class="mt-0.5 text-[11px]">Los pedidos cancelados se mantienen bajo el umbral admisible del 8%.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h2 class="text-sm font-bold text-slate-900">Actividad Reciente de Pedidos</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Últimos despachos registrados en el sistema</p>
+      </div>
+
+      <a routerLink="/dashboard/ordenes" class="text-xs font-semibold text-[#0091CA] hover:text-[#007BB0] hover:underline flex items-center gap-1">
+        <span>Ver todas las órdenes</span>
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100 text-[10px]">
+          <tr>
+            <th class="py-3 px-5">N° Pedido</th>
+            <th class="py-3 px-5">Cliente</th>
+            <th class="py-3 px-5">Fecha</th>
+            <th class="py-3 px-5">Estado</th>
+            <th class="py-3 px-5 text-right">Monto Total</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          @for (order of recentOrders(); track order.id) {
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-3.5 px-5 font-mono font-bold text-slate-900">
+                {{ order.orderNumber }}
+              </td>
+              <td class="py-3.5 px-5 font-medium">
+                {{ order.clientName }}
+              </td>
+              <td class="py-3.5 px-5 text-slate-500">
+                {{ order.date }}
+              </td>
+              <td class="py-3.5 px-5">
+                @switch (order.status) {
+                  @case ('Completed') {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Completado
+                    </span>
+                  }
+                  @case ('Pending') {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                      Pendiente
+                    </span>
+                  }
+                  @case ('Cancelled') {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                      Cancelado
+                    </span>
+                  }
+                }
+              </td>
+              <td class="py-3.5 px-5 text-right font-mono font-bold text-slate-900">
+                ${{ order.total.toFixed(2) }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

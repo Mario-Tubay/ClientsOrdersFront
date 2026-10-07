@@ -1,88 +1,60 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-export interface RecentOrder {
-  id: string;
-  orderNumber: string;
-  clientName: string;
-  date: string;
-  status: 'Completed' | 'Pending' | 'Cancelled';
-  total: number;
-}
-
-export interface ActivityMonth {
-  month: string;
-  orders: number;
-  percentage: number;
-}
+import { DashboardService } from '../../../core/services/dashboard.service';
+import { MonthlyActivityItem, RecentOrderSummary } from '../../../models/dashboard.models';
 
 @Component({
   selector: 'app-inicio',
   imports: [RouterLink],
   templateUrl: './inicio.html',
 })
-export class Inicio {
-  protected readonly totalOrders = signal(148);
-  protected readonly completedOrders = signal(108);
-  protected readonly pendingOrders = signal(32);
-  protected readonly cancelledOrders = signal(8);
-  protected readonly activeClients = signal(45);
+export class Inicio implements OnInit {
+  private readonly dashboardService = inject(DashboardService);
 
-  protected readonly completionRate = computed(() => {
+  protected readonly totalOrders = signal(0);
+  protected readonly completedOrders = signal(0);
+  protected readonly pendingOrders = signal(0);
+  protected readonly cancelledOrders = signal(0);
+  protected readonly activeClients = signal(0);
+  protected readonly completionRate = signal(0);
+  protected readonly totalRevenue = signal(0);
+  protected readonly loading = signal(true);
+
+  protected readonly pendingRate = computed(() => {
     const total = this.totalOrders();
-    if (total === 0) return 0;
-    return Math.round((this.completedOrders() / total) * 100);
+    return total > 0 ? Math.round((this.pendingOrders() / total) * 100) : 0;
   });
 
-  protected readonly activityData = signal<ActivityMonth[]>([
-    { month: 'Mayo', orders: 18, percentage: 35 },
-    { month: 'Junio', orders: 24, percentage: 48 },
-    { month: 'Julio', orders: 31, percentage: 62 },
-    { month: 'Agosto', orders: 28, percentage: 56 },
-    { month: 'Septiembre', orders: 38, percentage: 76 },
-    { month: 'Octubre', orders: 49, percentage: 100 },
-  ]);
+  protected readonly cancelledRate = computed(() => {
+    const total = this.totalOrders();
+    return total > 0 ? Math.round((this.cancelledOrders() / total) * 100) : 0;
+  });
 
-  protected readonly recentOrders = signal<RecentOrder[]>([
-    {
-      id: '1',
-      orderNumber: 'PED-2026-001',
-      clientName: 'Importadora Andina S.A.',
-      date: '07 Oct 2026',
-      status: 'Completed',
-      total: 1250.0,
-    },
-    {
-      id: '2',
-      orderNumber: 'PED-2026-002',
-      clientName: 'Logística del Pacífico Cía.',
-      date: '07 Oct 2026',
-      status: 'Pending',
-      total: 3420.5,
-    },
-    {
-      id: '3',
-      orderNumber: 'PED-2026-003',
-      clientName: 'Distribuidora Guayas',
-      date: '06 Oct 2026',
-      status: 'Completed',
-      total: 890.0,
-    },
-    {
-      id: '4',
-      orderNumber: 'PED-2026-004',
-      clientName: 'Corporación Marítima',
-      date: '05 Oct 2026',
-      status: 'Cancelled',
-      total: 2100.0,
-    },
-    {
-      id: '5',
-      orderNumber: 'PED-2026-005',
-      clientName: 'Comercializadora Torres',
-      date: '04 Oct 2026',
-      status: 'Completed',
-      total: 4500.0,
-    },
-  ]);
+  protected readonly activityData = signal<MonthlyActivityItem[]>([]);
+  protected readonly recentOrders = signal<RecentOrderSummary[]>([]);
+
+  ngOnInit(): void {
+    this.loadStats();
+  }
+
+  loadStats(): void {
+    this.loading.set(true);
+    this.dashboardService.getStats().subscribe({
+      next: (data) => {
+        this.totalOrders.set(data.totalOrders);
+        this.completedOrders.set(data.completedOrders);
+        this.pendingOrders.set(data.pendingOrders);
+        this.cancelledOrders.set(data.cancelledOrders);
+        this.activeClients.set(data.activeClients);
+        this.completionRate.set(data.completionRate);
+        this.totalRevenue.set(data.totalRevenue);
+        this.activityData.set(data.monthlyActivity);
+        this.recentOrders.set(data.recentOrders);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
 }

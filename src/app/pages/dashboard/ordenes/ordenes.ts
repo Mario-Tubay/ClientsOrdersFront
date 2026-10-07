@@ -1,98 +1,37 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Button } from '../../../components/button/button';
 import { Input } from '../../../components/input/input';
-
-export interface OrderItemModel {
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface OrderRecord {
-  id: string;
-  orderNumber: string;
-  clientId: string;
-  clientName: string;
-  orderDate: string;
-  status: 'Pending' | 'Completed' | 'Cancelled';
-  notes: string;
-  items: OrderItemModel[];
-  totalAmount: number;
-}
+import { ClientService } from '../../../core/services/client.service';
+import { OrderService } from '../../../core/services/order.service';
+import { CreateOrderRequest, OrderItemModel, OrderRecord, UpdateOrderRequest } from '../../../models/order.models';
 
 @Component({
   selector: 'app-ordenes',
   imports: [FormsModule, Button, Input],
   templateUrl: './ordenes.html',
 })
-export class Ordenes {
+export class Ordenes implements OnInit {
+  private readonly orderService = inject(OrderService);
+  private readonly clientService = inject(ClientService);
+
   protected readonly searchQuery = signal('');
   protected readonly filterStatus = signal<string>('all');
   protected readonly isModalOpen = signal(false);
   protected readonly isEditing = signal(false);
   protected readonly editingId = signal<string | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly errorMessage = signal('');
 
   protected formOrderNumber = signal('');
-  protected formClientId = signal('1');
+  protected formClientId = signal('');
   protected formNotes = signal('');
   protected formItems = signal<OrderItemModel[]>([
     { productName: 'Despacho Aduanero', quantity: 1, unitPrice: 450.0 },
   ]);
 
-  protected readonly clientsList = signal([
-    { id: '1', name: 'Importadora Andina S.A.' },
-    { id: '2', name: 'Logística del Pacífico Cía.' },
-    { id: '3', name: 'Distribuidora Guayas' },
-    { id: '4', name: 'Corporación Marítima' },
-  ]);
-
-  protected readonly orders = signal<OrderRecord[]>([
-    {
-      id: '1',
-      orderNumber: 'PED-2026-001',
-      clientId: '1',
-      clientName: 'Importadora Andina S.A.',
-      orderDate: '2026-10-07',
-      status: 'Completed',
-      notes: 'Trámite aduanero completado con éxito',
-      items: [{ productName: 'Despacho Aduanero FCL', quantity: 2, unitPrice: 625.0 }],
-      totalAmount: 1250.0,
-    },
-    {
-      id: '2',
-      orderNumber: 'PED-2026-002',
-      clientId: '2',
-      clientName: 'Logística del Pacífico Cía.',
-      orderDate: '2026-10-07',
-      status: 'Pending',
-      notes: 'Pendiente de confirmación de aforo',
-      items: [{ productName: 'Inspección de Contenedor', quantity: 1, unitPrice: 3420.5 }],
-      totalAmount: 3420.5,
-    },
-    {
-      id: '3',
-      orderNumber: 'PED-2026-003',
-      clientId: '3',
-      clientName: 'Distribuidora Guayas',
-      orderDate: '2026-10-06',
-      status: 'Completed',
-      notes: 'Entrega finalizada en bodega',
-      items: [{ productName: 'Transporte Terrestre', quantity: 1, unitPrice: 890.0 }],
-      totalAmount: 890.0,
-    },
-    {
-      id: '4',
-      orderNumber: 'PED-2026-004',
-      clientId: '4',
-      clientName: 'Corporación Marítima',
-      orderDate: '2026-10-05',
-      status: 'Cancelled',
-      notes: 'Cancelado por solicitud del importador',
-      items: [{ productName: 'Almacenaje Temporal', quantity: 1, unitPrice: 2100.0 }],
-      totalAmount: 2100.0,
-    },
-  ]);
+  protected readonly clientsList = signal<{ id: string; name: string }[]>([]);
+  protected readonly orders = signal<OrderRecord[]>([]);
 
   protected readonly filteredOrders = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
@@ -114,13 +53,47 @@ export class Ordenes {
     return this.formItems().reduce((acc, curr) => acc + curr.quantity * curr.unitPrice, 0);
   });
 
+  ngOnInit(): void {
+    this.loadOrders();
+    this.loadClients();
+  }
+
+  loadOrders(): void {
+    this.loading.set(true);
+    this.orderService.getOrders().subscribe({
+      next: (data) => {
+        this.orders.set(data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.error?.message || 'Error al cargar los pedidos.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  loadClients(): void {
+    this.clientService.getClients().subscribe({
+      next: (data) => {
+        const mapped = data.map((c) => ({ id: c.id, name: c.fullName }));
+        this.clientsList.set(mapped);
+        if (mapped.length > 0 && !this.formClientId()) {
+          this.formClientId.set(mapped[0].id);
+        }
+      },
+    });
+  }
+
   openCreateModal(): void {
     this.isEditing.set(false);
     this.editingId.set(null);
-    this.formOrderNumber.set(`PED-2026-00${this.orders().length + 1}`);
-    this.formClientId.set('1');
+    this.formOrderNumber.set('');
+    if (this.clientsList().length > 0) {
+      this.formClientId.set(this.clientsList()[0].id);
+    }
     this.formNotes.set('');
     this.formItems.set([{ productName: 'Servicio Logístico', quantity: 1, unitPrice: 500.0 }]);
+    this.errorMessage.set('');
     this.isModalOpen.set(true);
   }
 
@@ -130,12 +103,20 @@ export class Ordenes {
     this.formOrderNumber.set(order.orderNumber);
     this.formClientId.set(order.clientId);
     this.formNotes.set(order.notes);
-    this.formItems.set([...order.items]);
+    this.formItems.set(
+      order.items.map((i) => ({
+        productName: i.productName,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+      }))
+    );
+    this.errorMessage.set('');
     this.isModalOpen.set(true);
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
+    this.errorMessage.set('');
   }
 
   addItem(): void {
@@ -143,6 +124,7 @@ export class Ordenes {
   }
 
   removeItem(index: number): void {
+    if (this.formItems().length <= 1) return;
     this.formItems.update((prev) => prev.filter((_, i) => i !== index));
   }
 
@@ -153,52 +135,84 @@ export class Ordenes {
   }
 
   saveOrder(): void {
-    const client = this.clientsList().find((c) => c.id === this.formClientId());
-    const clientName = client ? client.name : 'Cliente General';
-    const total = this.computedModalTotal();
-
-    if (this.isEditing()) {
-      this.orders.update((prev) =>
-        prev.map((o) =>
-          o.id === this.editingId()
-            ? {
-                ...o,
-                orderNumber: this.formOrderNumber(),
-                clientId: this.formClientId(),
-                clientName: clientName,
-                notes: this.formNotes(),
-                items: [...this.formItems()],
-                totalAmount: total,
-              }
-            : o
-        )
-      );
-    } else {
-      const newOrder: OrderRecord = {
-        id: Date.now().toString(),
-        orderNumber: this.formOrderNumber(),
-        clientId: this.formClientId(),
-        clientName: clientName,
-        orderDate: new Date().toISOString().split('T')[0],
-        status: 'Pending',
-        notes: this.formNotes(),
-        items: [...this.formItems()],
-        totalAmount: total,
-      };
-      this.orders.update((prev) => [newOrder, ...prev]);
+    if (!this.formClientId()) {
+      this.errorMessage.set('Por favor selecciona un cliente asociado.');
+      return;
     }
 
-    this.closeModal();
+    const items = this.formItems().filter((i) => i.productName.trim().length > 0 && i.quantity > 0);
+    if (items.length === 0) {
+      this.errorMessage.set('Debes registrar al menos un producto o servicio válido.');
+      return;
+    }
+
+    if (this.isEditing() && this.editingId()) {
+      const payload: UpdateOrderRequest = {
+        clientId: this.formClientId(),
+        status: 'Pending',
+        notes: this.formNotes().trim(),
+        items: items.map((i) => ({
+          productName: i.productName.trim(),
+          quantity: Number(i.quantity),
+          unitPrice: Number(i.unitPrice),
+        })),
+      };
+
+      this.orderService.updateOrder(this.editingId()!, payload).subscribe({
+        next: () => {
+          this.loadOrders();
+          this.closeModal();
+        },
+        error: (err) => {
+          this.errorMessage.set(err.error?.message || 'Error al actualizar el pedido.');
+        },
+      });
+    } else {
+      const payload: CreateOrderRequest = {
+        orderNumber: this.formOrderNumber().trim() || undefined,
+        clientId: this.formClientId(),
+        status: 'Pending',
+        notes: this.formNotes().trim(),
+        items: items.map((i) => ({
+          productName: i.productName.trim(),
+          quantity: Number(i.quantity),
+          unitPrice: Number(i.unitPrice),
+        })),
+      };
+
+      this.orderService.createOrder(payload).subscribe({
+        next: () => {
+          this.loadOrders();
+          this.closeModal();
+        },
+        error: (err) => {
+          this.errorMessage.set(err.error?.message || 'Error al crear el pedido.');
+        },
+      });
+    }
   }
 
   updateStatus(id: string, newStatus: 'Pending' | 'Completed' | 'Cancelled'): void {
-    this.orders.update((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o))
-    );
+    this.orderService.updateOrderStatus(id, newStatus).subscribe({
+      next: () => {
+        this.loadOrders();
+      },
+      error: (err) => {
+        alert(err.error?.message || 'Error al cambiar estado del pedido.');
+      },
+    });
   }
 
   deleteOrder(id: string): void {
     if (!confirm('¿Estás seguro de eliminar este pedido?')) return;
-    this.orders.update((prev) => prev.filter((o) => o.id !== id));
+
+    this.orderService.deleteOrder(id).subscribe({
+      next: () => {
+        this.loadOrders();
+      },
+      error: (err) => {
+        alert(err.error?.message || 'Error al eliminar pedido.');
+      },
+    });
   }
 }

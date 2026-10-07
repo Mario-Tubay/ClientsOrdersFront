@@ -11,10 +11,19 @@ export class OrderService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiGatewayUrl}/orders`;
 
-  getOrders(search?: string, status?: string): Observable<OrderRecord[]> {
+  getOrders(
+    search?: string,
+    status?: string,
+    clientId?: string,
+    startDate?: string,
+    endDate?: string
+  ): Observable<OrderRecord[]> {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     if (status && status !== 'all') params = params.set('status', status);
+    if (clientId && clientId !== 'all') params = params.set('clientId', clientId);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
 
     return this.http.get<OrderRecord[]>(this.apiUrl, { params });
   }

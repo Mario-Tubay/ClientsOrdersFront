@@ -17,6 +17,10 @@ export class Ordenes implements OnInit {
 
   protected readonly searchQuery = signal('');
   protected readonly filterStatus = signal<string>('all');
+  protected readonly filterClientId = signal<string>('all');
+  protected readonly filterStartDate = signal<string>('');
+  protected readonly filterEndDate = signal<string>('');
+
   protected readonly isModalOpen = signal(false);
   protected readonly isEditing = signal(false);
   protected readonly editingId = signal<string | null>(null);
@@ -33,19 +37,38 @@ export class Ordenes implements OnInit {
   protected readonly clientsList = signal<{ id: string; name: string }[]>([]);
   protected readonly orders = signal<OrderRecord[]>([]);
 
+  protected readonly hasActiveFilters = computed(() => {
+    return (
+      !!this.searchQuery().trim() ||
+      this.filterStatus() !== 'all' ||
+      this.filterClientId() !== 'all' ||
+      !!this.filterStartDate() ||
+      !!this.filterEndDate()
+    );
+  });
+
   protected readonly filteredOrders = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const st = this.filterStatus();
+    const clId = this.filterClientId();
+    const start = this.filterStartDate();
+    const end = this.filterEndDate();
 
     return this.orders().filter((o) => {
       const matchesSearch =
         !q ||
         o.orderNumber.toLowerCase().includes(q) ||
-        o.clientName.toLowerCase().includes(q);
+        o.clientName.toLowerCase().includes(q) ||
+        o.notes.toLowerCase().includes(q);
 
-      const matchesStatus = st === 'all' || o.status === st;
+      const matchesStatus = st === 'all' || o.status.toLowerCase() === st.toLowerCase();
+      const matchesClient = clId === 'all' || o.clientId === clId;
 
-      return matchesSearch && matchesStatus;
+      const orderDateStr = o.orderDate ? o.orderDate.split('T')[0] : '';
+      const matchesStart = !start || orderDateStr >= start;
+      const matchesEnd = !end || orderDateStr <= end;
+
+      return matchesSearch && matchesStatus && matchesClient && matchesStart && matchesEnd;
     });
   });
 
@@ -82,6 +105,14 @@ export class Ordenes implements OnInit {
         }
       },
     });
+  }
+
+  resetFilters(): void {
+    this.searchQuery.set('');
+    this.filterStatus.set('all');
+    this.filterClientId.set('all');
+    this.filterStartDate.set('');
+    this.filterEndDate.set('');
   }
 
   openCreateModal(): void {

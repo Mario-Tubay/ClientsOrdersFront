@@ -30,6 +30,7 @@ export class Ordenes implements OnInit {
   protected formOrderNumber = signal('');
   protected formClientId = signal('');
   protected formNotes = signal('');
+  protected formTransporte = signal(false);
   protected formItems = signal<OrderItemModel[]>([
     { productName: 'Despacho Aduanero', quantity: 1, unitPrice: 450.0 },
   ]);
@@ -122,6 +123,7 @@ export class Ordenes implements OnInit {
     if (this.clientsList().length > 0) {
       this.formClientId.set(this.clientsList()[0].id);
     }
+    this.formTransporte.set(false);
     this.formNotes.set('');
     this.formItems.set([{ productName: 'Servicio Logístico', quantity: 1, unitPrice: 500.0 }]);
     this.errorMessage.set('');
@@ -134,6 +136,7 @@ export class Ordenes implements OnInit {
     this.formOrderNumber.set(order.orderNumber);
     this.formClientId.set(order.clientId);
     this.formNotes.set(order.notes);
+    this.formTransporte.set(Boolean(order.checkTransporte));
     this.formItems.set(
       order.items.map((i) => ({
         productName: i.productName,
@@ -182,6 +185,7 @@ export class Ordenes implements OnInit {
         clientId: this.formClientId(),
         status: 'Pending',
         notes: this.formNotes().trim(),
+        checkTransporte: this.formTransporte(),
         items: items.map((i) => ({
           productName: i.productName.trim(),
           quantity: Number(i.quantity),
@@ -204,6 +208,7 @@ export class Ordenes implements OnInit {
         clientId: this.formClientId(),
         status: 'Pending',
         notes: this.formNotes().trim(),
+        checkTransporte: this.formTransporte(),
         items: items.map((i) => ({
           productName: i.productName.trim(),
           quantity: Number(i.quantity),

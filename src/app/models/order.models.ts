@@ -15,6 +15,7 @@ export interface OrderRecord {
   status: 'Pending' | 'Completed' | 'Cancelled';
   totalAmount: number;
   notes: string;
+  checkTransporte: boolean;
   items: OrderItemModel[];
 }
 
@@ -23,6 +24,7 @@ export interface CreateOrderRequest {
   clientId: string;
   status: string;
   notes: string;
+  checkTransporte: boolean;
   items: {
     productName: string;
     quantity: number;
@@ -34,6 +36,7 @@ export interface UpdateOrderRequest {
   clientId: string;
   status: string;
   notes: string;
+  checkTransporte: boolean;
   items: {
     productName: string;
     quantity: number;
